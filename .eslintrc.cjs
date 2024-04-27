@@ -10,5 +10,12 @@ module.exports = {
   ],
   rules: {
     "vue/multi-word-component-names": "off",
+    // mac과 window의 마지막 개행문구 통합을 위해 추가
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
+      },
+    ],
   },
 };

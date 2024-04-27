@@ -1,0 +1,23 @@
+.background {
+  background-image: url("/src/assets/img/bg9.jpg");
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+> .content {
+  text-align: center;
+  color: white;
+}
+> .content > h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+> .content > p {
+  font-size: 1.5rem;
+}

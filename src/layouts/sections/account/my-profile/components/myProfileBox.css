@@ -1,0 +1,121 @@
+.my-profile-container {
+  background-color: #f1f1f1;
+  width: 70%;
+  border: 1px solid #ddd;
+  margin: 0 auto;
+  padding: 40px 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input-disabled {
+  pointer-events: none;
+  background-color: #f4f4f4;
+}
+
+.input-enabled {
+  pointer-events: auto;
+  background-color: #ffffff;
+}
+
+.my-profile-content {
+  display: flex;
+}
+
+.profile-img-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.profile-img-content > img {
+  max-width: 200px;
+  min-width: 150px;
+  max-height: 200px;
+  min-height: 150px;
+}
+.profile-img-content .profile-img-box .profile-img-box-header {
+  text-align: center;
+  margin: 0 auto;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+.profile-img-content .profile-img-box .profile-img-box-content {
+  display: flex;
+  flex-direction: column;
+}
+.profile-img-content .profile-img-box .profile-img-box-content > label {
+  margin: 0 auto;
+  padding: 7px 20px;
+  color: #fff;
+  background-color: #999999;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 5px;
+}
+.profile-img-content .profile-img-box .profile-img-box-content > label:hover {
+  background-color: #b8b1b1;
+}
+.profile-img-content .profile-img-box .profile-img-box-content .profile-img-name {
+  flex-grow: 1;
+  padding: 5px 5px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  color: #999999;
+}
+.profile-img-content .profile-img-box .profile-img-box-content #user-profile-image {
+  display: block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.form-box {
+  margin-left: 30px;
+  width: 100%;
+  margin-bottom: 30px;
+}
+.form-box .form-group {
+  display: flex;
+  border: 1px solid black;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  padding: 5px 5px;
+}
+.form-box .form-group > label {
+  margin: auto;
+  font-size: 22px;
+  width: 20%;
+  text-align: end;
+}
+.form-box .form-group > input {
+  height: 100%;
+  margin: auto;
+  margin-left: 10px;
+  flex: 1;
+  padding: 5px 5px;
+  font-size: 22px;
+  border: none;
+}
+
+.btn-group {
+  height: 20%;
+  display: flex;
+  justify-content: center;
+}
+.btn-group > button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+.btn-group > button:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

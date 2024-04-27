@@ -23,6 +23,12 @@ import ElDropdowns from "../layouts/sections/elements/dropdowns/DropdownsView.vu
 import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressBarsView.vue";
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
+import SignInView from "../layouts/sections/account/sign-in/SignInView.vue";
+import SignUpView from "../layouts/sections/account/sign-up/SignUpView.vue";
+import MyProfileView from "../layouts/sections/account/my-profile/MyProfileView.vue";
+import KakaoLogin from "../layouts/sections/account/social-login/KakaoLogin.vue";
+import GoogleLogin from "../layouts/sections/account/social-login/GoogleLogin.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -145,6 +151,31 @@ const router = createRouter({
       path: "/sections/elements/typography",
       name: "el-typography",
       component: ElTypography,
+    },
+    {
+      path: "/sections/account/sign-in",
+      name: "account-sign-in",
+      component: SignInView,
+    },
+    {
+      path: "/sections/account/sign-up",
+      name: "account-sign-up",
+      component: SignUpView,
+    },
+    {
+      path: "/sections/account/my-profile",
+      name: "account-my-profile",
+      component: MyProfileView,
+    },
+    {
+      path: "/sections/account/auth/kakao-login",
+      name: "account-auth-kakao-login",
+      component: KakaoLogin,
+    },
+    {
+      path: "/sections/account/auth/google-login",
+      name: "account-auth-google-login",
+      component: GoogleLogin,
     },
   ],
 });

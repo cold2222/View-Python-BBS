@@ -1,0 +1,75 @@
+.login-form {
+  background-color: white;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 150px;
+  box-shadow: 1px 1px 1px 1px black;
+}
+.login-form .login-header h2 {
+  text-align: center;
+}
+.login-form > form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login-form > form div .form-group {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+}
+.login-form > form div .form-group > label {
+  margin-bottom: 5px;
+}
+.login-form > form div .form-group > input[type=email],
+.login-form > form div .form-group > input[type=password] {
+  width: 330px;
+  padding: 5px;
+  font-size: 16px;
+}
+.login-form > form > button {
+  width: 330px;
+  padding: 6px 0;
+  background-color: rgb(67, 160, 71);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.login-form > form > button:hover {
+  background-color: rgb(102, 187, 106);
+}
+.login-form .sign-up {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 330px;
+}
+.login-form .sign-up .sign-up-link {
+  margin-left: 13px;
+  color: #A0D3F9;
+}
+.login-form .login-options {
+  width: 330px;
+  margin: 0 auto;
+}
+.login-form .login-options p {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.login-form .login-options > div {
+  display: flex;
+  justify-content: space-evenly;
+}
+.login-form .login-options > div .login-link {
+  border: none;
+  background-color: white;
+}
+.login-form .login-options > div .login-link > img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}

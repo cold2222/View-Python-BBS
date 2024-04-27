@@ -1,0 +1,105 @@
+.sign-up-container {
+  width: 60%;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 5px;
+  padding: 30px 50px;
+}
+.sign-up-container .sign-up-header {
+  padding: 5px 5px;
+  width: 25%;
+  margin: 0 auto;
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  border-radius: 5px;
+}
+.sign-up-container .sign-up-box {
+  display: flex;
+  flex-direction: column;
+}
+.sign-up-container .sign-up-box > div {
+  display: flex;
+  padding: 15px 0;
+  border-top: 1px solid gray;
+}
+.sign-up-container .sign-up-box > div > input {
+  padding: 5px 5px;
+  border-radius: 5px;
+  flex-grow: 1;
+  border: 1px solid gray;
+}
+.sign-up-container .sign-up-box > div > label {
+  width: 170px;
+  font-size: 18px;
+}
+.sign-up-container .sign-up-box > div > button {
+  background-color: rgb(67, 160, 71);
+  color: white;
+  border: 1px solid rgb(67, 160, 71);
+  border-radius: 5px;
+  padding: 5px 5px;
+  margin-left: 15px;
+}
+.sign-up-container .sign-up-box > div > button:hover {
+  background-color: rgb(102, 187, 106);
+  border: 1px solid rgb(102, 187, 106);
+}
+.sign-up-container .sign-up-box > div:last-child {
+  border-bottom: 1px solid gray;
+}
+.sign-up-container .sign-up-box .profile_img_box {
+  display: flex;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_header {
+  margin-bottom: 5px;
+  width: 170px;
+  font-size: 18px;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_content {
+  display: flex;
+  flex-grow: 1;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_content > label {
+  margin: auto 0;
+  padding: 7px 20px;
+  color: #fff;
+  background-color: #999999;
+  cursor: pointer;
+  margin-left: 10px;
+  text-align: end;
+  border-radius: 5px;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_content > label:hover {
+  background-color: #b8b1b1;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_content .profile_img_name {
+  flex-grow: 1;
+  padding: 5px 5px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  color: #999999;
+}
+.sign-up-container .sign-up-box .profile_img_box .profile_img_box_content #user_profile_image {
+  display: block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.sign-up-container .sign-up-button {
+  padding: 30px 5px;
+}
+.sign-up-container .sign-up-button > button {
+  font-size: 18px;
+  color: white;
+  border: 1px solid rgb(67, 160, 71);
+  border-radius: 5px;
+  background-color: rgb(67, 160, 71);
+  padding: 5px 5px;
+  width: 100%;
+}
+.sign-up-container .sign-up-button > button:hover {
+  background-color: rgb(102, 187, 106);
+  border: 1px solid rgb(102, 187, 106);
+}

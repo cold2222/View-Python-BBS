@@ -1,6 +1,6 @@
 <script setup>
-import { RouterLink } from "vue-router";
-import { ref, watch } from "vue";
+import { RouterLink, useRouter, useRoute } from "vue-router";
+import { ref, watch, getCurrentInstance } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 
 // images
@@ -17,31 +17,89 @@ const props = defineProps({
     default: () => ({
       route: "https://www.creative-tim.com/product/vue-material-kit",
       color: "bg-gradient-success",
-      label: "Free Download"
-    })
+      label: "Free Download",
+    }),
   },
   transparent: {
     type: Boolean,
-    default: false
+    default: false,
   },
   light: {
     type: Boolean,
-    default: false
+    default: false,
   },
   dark: {
     type: Boolean,
-    default: false
+    default: false,
   },
   sticky: {
     type: Boolean,
-    default: false
+    default: false,
   },
   darkText: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
+const router = useRouter();
+const route = useRoute();
+const { proxy } = getCurrentInstance();
+const cookie = proxy.$cookies.get("jwt");
 
+const move_home = () => {
+  if (route.path === "/") {
+    router.go(0);
+  } else {
+    router.push({ path: "/" });
+  }
+};
+const sign_out = () => {
+  if (confirm("ログアウトしますか？")) {
+    proxy.$cookies.remove("jwt");
+    move_home();
+  }
+};
+
+const account_deletion = () => {
+  const password = prompt("Please enter your password for account deletion");
+  if (password === null || password === "") {
+    alert("キャンセルしました。");
+    return;
+  } else {
+    const axios = proxy.$axios;
+    const cookie = proxy.$cookies.get("jwt");
+    const axiosConfig = {
+      headers: {
+        Authorization: `Bearer ${cookie}`,
+      },
+      validateStatus: function (status) {
+        return (
+          (status >= 200 && status < 300) || status === 401 || status === 403
+        );
+      },
+    };
+    axios
+      .delete(`http://127.0.0.1:5000/auth/user/${password}`, axiosConfig)
+      .then((res) => {
+        if (res.status === 200) {
+          alert("会員退会に成功しました。");
+          proxy.$cookies.remove("jwt");
+          move_home();
+        } else if (res.status === 401) {
+          alert("権限がありません。");
+          router.go(0);
+        } else if (res.status === 403) {
+          alert("会員退会に失敗しました。パスワードを確認してください。");
+          router.go(0);
+        }
+      })
+      .catch(() => {
+        alert(
+          "アカウントの削除に失敗しました。ネットワーク状態をかくにんしてください。"
+        );
+      });
+  }
+};
 // set arrow  color
 function getArrowColor() {
   if (props.transparent && textDark.value) {
@@ -98,7 +156,7 @@ watch(
       'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute mt-4':
         props.sticky,
       'navbar-light bg-white py-3': props.light,
-      ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
+      ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark,
     }"
   >
     <div
@@ -113,7 +171,7 @@ watch(
         :class="[
           (props.transparent && textDark.value) || !props.transparent
             ? 'text-dark font-weight-bolder ms-sm-3'
-            : 'text-white font-weight-bolder ms-sm-3'
+            : 'text-white font-weight-bolder ms-sm-3',
         ]"
         :to="{ name: 'presentation' }"
         rel="tooltip"
@@ -567,6 +625,71 @@ watch(
                       </RouterLink>
                     </div>
                   </li>
+                  <li
+                    class="nav-item dropdown dropdown-hover dropdown-subitem list-group-item border-0 p-0"
+                  >
+                    <a
+                      class="dropdown-item py-2 ps-3 border-radius-md"
+                      href="javascript:;"
+                    >
+                      <div class="d-flex">
+                        <div
+                          class="w-100 d-flex align-items-center justify-content-between"
+                        >
+                          <div>
+                            <h6
+                              class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
+                            >
+                              Account
+                            </h6>
+                            <span class="text-sm">sign in or sign up</span>
+                          </div>
+                          <img
+                            :src="downArrow"
+                            alt="down-arrow"
+                            class="arrow"
+                          />
+                        </div>
+                      </div>
+                    </a>
+                    <div class="dropdown-menu mt-0 py-3 px-2 mt-3">
+                      <RouterLink
+                        v-if="!cookie"
+                        class="dropdown-item ps-3 border-radius-md mb-1"
+                        :to="{ name: 'account-sign-in' }"
+                      >
+                        Sign In
+                      </RouterLink>
+                      <RouterLink
+                        v-if="!cookie"
+                        class="dropdown-item ps-3 border-radius-md mb-1"
+                        :to="{ name: 'account-sign-up' }"
+                      >
+                        Sign Up
+                      </RouterLink>
+                      <RouterLink
+                        v-if="cookie"
+                        class="dropdown-item ps-3 border-radius-md mb-1"
+                        :to="{ name: 'account-my-profile' }"
+                      >
+                        My Profile
+                      </RouterLink>
+                      <div
+                        v-if="cookie"
+                        class="dropdown-item ps-3 border-radius-md mb-1"
+                        @click="sign_out"
+                      >
+                        Sign Out
+                      </div>
+                      <div
+                        v-if="cookie"
+                        class="dropdown-item ps-3 border-radius-md mb-1"
+                        @click="account_deletion"
+                      >
+                        Account deletion
+                      </div>
+                    </div>
+                  </li>
                 </ul>
               </div>
               <div class="row d-lg-none">
@@ -750,6 +873,54 @@ watch(
                   >
                     Typography
                   </RouterLink>
+                  <div class="d-flex mb-2 mt-3">
+                    <div
+                      class="w-100 d-flex align-items-center justify-content-between"
+                    >
+                      <div>
+                        <h6
+                          class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
+                        >
+                          Account
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
+                  <RouterLink
+                    v-if="!cookie"
+                    class="dropdown-item ps-3 border-radius-md mb-1"
+                    :to="{ name: 'account-sign-in' }"
+                  >
+                    Sign In
+                  </RouterLink>
+                  <RouterLink
+                    v-if="!cookie"
+                    class="dropdown-item ps-3 border-radius-md mb-1"
+                    :to="{ name: 'account-sign-up' }"
+                  >
+                    Sign Up
+                  </RouterLink>
+                  <RouterLink
+                    v-if="cookie"
+                    class="dropdown-item ps-3 border-radius-md mb-1"
+                    :to="{ name: 'account-my-profile' }"
+                  >
+                    My Profile
+                  </RouterLink>
+                  <div
+                    v-if="cookie"
+                    class="dropdown-item ps-3 border-radius-md mb-1"
+                    @click="sign_out"
+                  >
+                    Sign Out
+                  </div>
+                  <div
+                    v-if="cookie"
+                    class="dropdown-item ps-3 border-radius-md mb-1"
+                    @click="account_deletion"
+                  >
+                    Account deletion
+                  </div>
                 </div>
               </div>
             </div>

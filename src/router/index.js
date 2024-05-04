@@ -28,6 +28,10 @@ import SignUpView from "../layouts/sections/account/sign-up/SignUpView.vue";
 import MyProfileView from "../layouts/sections/account/my-profile/MyProfileView.vue";
 import KakaoLogin from "../layouts/sections/account/social-login/KakaoLogin.vue";
 import GoogleLogin from "../layouts/sections/account/social-login/GoogleLogin.vue";
+import BoardListView from "../layouts/community/board/BoardListView.vue";
+import BoardDetailView from "../layouts/community/board/BoardDetailView.vue";
+
+import VueCookies from "vue-cookies";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -166,6 +170,7 @@ const router = createRouter({
       path: "/sections/account/my-profile",
       name: "account-my-profile",
       component: MyProfileView,
+      meta: { requiresAuth: true },
     },
     {
       path: "/sections/account/auth/kakao-login",
@@ -177,7 +182,31 @@ const router = createRouter({
       name: "account-auth-google-login",
       component: GoogleLogin,
     },
+    {
+      path: "/community/board/:category/:current_page",
+      name: "community-board",
+      component: BoardListView,
+    },
+    {
+      path: "/community/detail/:bbs_pk",
+      name: "community-detail",
+      component: BoardDetailView,
+    },
   ],
+});
+// path접속시 user_jwt가 없을시 로그인페이지로 이동시킴
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const user_jwt = VueCookies.get("user_jwt");
+
+    if (user_jwt) {
+      next();
+    } else {
+      next("/sections/account/sign-in");
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

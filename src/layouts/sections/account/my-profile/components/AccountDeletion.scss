@@ -1,0 +1,42 @@
+.delete-id-container {
+    text-align: center;
+    background-color: #f1f1f1;
+    width: 70%;
+    border: 1px solid #ddd;
+    margin: 100px auto;
+    padding: 40px 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-id-title {
+    color: red;
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+.delete-id-form{
+    padding: 20px 20px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+.delete-id-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+.delete-id-button {
+    padding: 8px 20px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-id-button:hover {
+    background-color: rgb(246, 69, 69);
+}

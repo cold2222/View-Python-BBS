@@ -1,3 +1,14 @@
+@charset "UTF-8";
+span {
+  color: rgb(200, 17, 17);
+  margin-left: 3px;
+}
+
+.profile_img_name, input::placeholder {
+  font-size: 12px;
+  /* 원하는 크기로 조절하세요 */
+}
+
 .sign-up-container {
   width: 60%;
   margin: 0 auto;

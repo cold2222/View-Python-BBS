@@ -1,30 +1,32 @@
 <script setup>
-import { getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import DefaultInfoCard from "@/examples/cards/infoCards/DefaultInfoCard.vue";
+import { useUserStore } from "@/stores/useUserStore";
+import { useRoute } from "vue-router";
+const userStore = useUserStore();
 
-const { proxy } = getCurrentInstance();
-const axios = proxy.$axios;
+const route = useRoute();
+const code = route.query.code;
 
-const handleOAuthKakao = async () => {
-  const route = useRoute();
-  const router = useRouter();
-  const code = route.query.code;
-  try {
-    console.log(code);
-    const crossOriginIsolated = { withCredentials: true };
-    const response = await axios.post(
-      "http://127.0.0.1:5000/user/social-login/kakao",
-      { code },
-      crossOriginIsolated
-    );
-    if (response.status === 200) {
-      router.push({ path: "/" });
-    }
-  } catch (error) {
-    alert("ログインに失敗しました。");
-    router.push({ path: "/sections/account/sign-in" });
-  }
-};
-
-handleOAuthKakao();
+userStore.kakaoSignInApi(code);
 </script>
+
+<template>
+  <div class="loading">
+    <DefaultInfoCard
+      color="success"
+      icon="public"
+      title="Now Loading..."
+      description="Sign in with Google account. Please wait a moment."
+      col="col-md-3"
+    />
+  </div>
+</template>
+
+<style>
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>

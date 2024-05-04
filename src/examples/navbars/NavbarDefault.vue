@@ -1,8 +1,9 @@
 <script setup>
-import { RouterLink, useRouter, useRoute } from "vue-router";
+import { RouterLink } from "vue-router";
 import { ref, watch, getCurrentInstance } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
-
+import { useUserStore } from "@/stores/useUserStore";
+import { storeToRefs } from "pinia";
 // images
 import ArrDark from "@/assets/img/down-arrow-dark.svg";
 import downArrow from "@/assets/img/down-arrow.svg";
@@ -41,65 +42,12 @@ const props = defineProps({
     default: false,
   },
 });
-const router = useRouter();
-const route = useRoute();
 const { proxy } = getCurrentInstance();
-const cookie = proxy.$cookies.get("jwt");
+const cookie = proxy.$cookies.get("user_jwt");
 
-const move_home = () => {
-  if (route.path === "/") {
-    router.go(0);
-  } else {
-    router.push({ path: "/" });
-  }
-};
-const sign_out = () => {
-  if (confirm("ログアウトしますか？")) {
-    proxy.$cookies.remove("jwt");
-    move_home();
-  }
-};
+const userStore = useUserStore();
+const { user_nickname } = storeToRefs(userStore);
 
-const account_deletion = () => {
-  const password = prompt("Please enter your password for account deletion");
-  if (password === null || password === "") {
-    alert("キャンセルしました。");
-    return;
-  } else {
-    const axios = proxy.$axios;
-    const cookie = proxy.$cookies.get("jwt");
-    const axiosConfig = {
-      headers: {
-        Authorization: `Bearer ${cookie}`,
-      },
-      validateStatus: function (status) {
-        return (
-          (status >= 200 && status < 300) || status === 401 || status === 403
-        );
-      },
-    };
-    axios
-      .delete(`http://127.0.0.1:5000/auth/user/${password}`, axiosConfig)
-      .then((res) => {
-        if (res.status === 200) {
-          alert("会員退会に成功しました。");
-          proxy.$cookies.remove("jwt");
-          move_home();
-        } else if (res.status === 401) {
-          alert("権限がありません。");
-          router.go(0);
-        } else if (res.status === 403) {
-          alert("会員退会に失敗しました。パスワードを確認してください。");
-          router.go(0);
-        }
-      })
-      .catch(() => {
-        alert(
-          "アカウントの削除に失敗しました。ネットワーク状態をかくにんしてください。"
-        );
-      });
-  }
-};
 // set arrow  color
 function getArrowColor() {
   if (props.transparent && textDark.value) {
@@ -276,17 +224,6 @@ watch(
                       >
                         <span>Author</span>
                       </RouterLink>
-                      <div
-                        class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0 mt-3"
-                      >
-                        Account
-                      </div>
-                      <RouterLink
-                        :to="{ name: 'signin-basic' }"
-                        class="dropdown-item border-radius-md"
-                      >
-                        <span>Sign In</span>
-                      </RouterLink>
                     </div>
                   </div>
                 </div>
@@ -314,17 +251,6 @@ watch(
                   class="dropdown-item border-radius-md"
                 >
                   <span>Author</span>
-                </RouterLink>
-                <div
-                  class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0 mt-3"
-                >
-                  Account
-                </div>
-                <RouterLink
-                  :to="{ name: 'signin-basic' }"
-                  class="dropdown-item border-radius-md"
-                >
-                  <span>Sign In</span>
                 </RouterLink>
               </div>
             </div>
@@ -625,71 +551,6 @@ watch(
                       </RouterLink>
                     </div>
                   </li>
-                  <li
-                    class="nav-item dropdown dropdown-hover dropdown-subitem list-group-item border-0 p-0"
-                  >
-                    <a
-                      class="dropdown-item py-2 ps-3 border-radius-md"
-                      href="javascript:;"
-                    >
-                      <div class="d-flex">
-                        <div
-                          class="w-100 d-flex align-items-center justify-content-between"
-                        >
-                          <div>
-                            <h6
-                              class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
-                            >
-                              Account
-                            </h6>
-                            <span class="text-sm">sign in or sign up</span>
-                          </div>
-                          <img
-                            :src="downArrow"
-                            alt="down-arrow"
-                            class="arrow"
-                          />
-                        </div>
-                      </div>
-                    </a>
-                    <div class="dropdown-menu mt-0 py-3 px-2 mt-3">
-                      <RouterLink
-                        v-if="!cookie"
-                        class="dropdown-item ps-3 border-radius-md mb-1"
-                        :to="{ name: 'account-sign-in' }"
-                      >
-                        Sign In
-                      </RouterLink>
-                      <RouterLink
-                        v-if="!cookie"
-                        class="dropdown-item ps-3 border-radius-md mb-1"
-                        :to="{ name: 'account-sign-up' }"
-                      >
-                        Sign Up
-                      </RouterLink>
-                      <RouterLink
-                        v-if="cookie"
-                        class="dropdown-item ps-3 border-radius-md mb-1"
-                        :to="{ name: 'account-my-profile' }"
-                      >
-                        My Profile
-                      </RouterLink>
-                      <div
-                        v-if="cookie"
-                        class="dropdown-item ps-3 border-radius-md mb-1"
-                        @click="sign_out"
-                      >
-                        Sign Out
-                      </div>
-                      <div
-                        v-if="cookie"
-                        class="dropdown-item ps-3 border-radius-md mb-1"
-                        @click="account_deletion"
-                      >
-                        Account deletion
-                      </div>
-                    </div>
-                  </li>
                 </ul>
               </div>
               <div class="row d-lg-none">
@@ -873,54 +734,6 @@ watch(
                   >
                     Typography
                   </RouterLink>
-                  <div class="d-flex mb-2 mt-3">
-                    <div
-                      class="w-100 d-flex align-items-center justify-content-between"
-                    >
-                      <div>
-                        <h6
-                          class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0"
-                        >
-                          Account
-                        </h6>
-                      </div>
-                    </div>
-                  </div>
-                  <RouterLink
-                    v-if="!cookie"
-                    class="dropdown-item ps-3 border-radius-md mb-1"
-                    :to="{ name: 'account-sign-in' }"
-                  >
-                    Sign In
-                  </RouterLink>
-                  <RouterLink
-                    v-if="!cookie"
-                    class="dropdown-item ps-3 border-radius-md mb-1"
-                    :to="{ name: 'account-sign-up' }"
-                  >
-                    Sign Up
-                  </RouterLink>
-                  <RouterLink
-                    v-if="cookie"
-                    class="dropdown-item ps-3 border-radius-md mb-1"
-                    :to="{ name: 'account-my-profile' }"
-                  >
-                    My Profile
-                  </RouterLink>
-                  <div
-                    v-if="cookie"
-                    class="dropdown-item ps-3 border-radius-md mb-1"
-                    @click="sign_out"
-                  >
-                    Sign Out
-                  </div>
-                  <div
-                    v-if="cookie"
-                    class="dropdown-item ps-3 border-radius-md mb-1"
-                    @click="account_deletion"
-                  >
-                    Account deletion
-                  </div>
                 </div>
               </div>
             </div>
@@ -1081,35 +894,195 @@ watch(
           </li>
           <li class="nav-item dropdown dropdown-hover mx-2">
             <a
-              href="https://www.github.com/creativetimofficial/vue-material-kit"
-              class="nav-link d-flex cursor-pointer align-items-center"
+              role="button"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+              :class="getTextColor()"
+              id="dropdownMenuPages"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
-              <svg
-                width="20px"
-                height="20px"
-                class="material-icons me-2 opacity-6"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                data-testid="GitHubIcon"
-                :fill="props.transparent && '#fff'"
+              <i
+                class="material-icons opacity-6 me-2 text-md"
+                :class="getTextColor()"
+                >dashboard</i
               >
-                <path
-                  d="M12 1.27a11 11 0 00-3.48 21.46c.55.09.73-.28.73-.55v-1.84c-3.03.64-3.67-1.46-3.67-1.46-.55-1.29-1.28-1.65-1.28-1.65-.92-.65.1-.65.1-.65 1.1 0 1.73 1.1 1.73 1.1.92 1.65 2.57 1.2 3.21.92a2 2 0 01.64-1.47c-2.47-.27-5.04-1.19-5.04-5.5 0-1.1.46-2.1 1.2-2.84a3.76 3.76 0 010-2.93s.91-.28 3.11 1.1c1.8-.49 3.7-.49 5.5 0 2.1-1.38 3.02-1.1 3.02-1.1a3.76 3.76 0 010 2.93c.83.74 1.2 1.74 1.2 2.94 0 4.21-2.57 5.13-5.04 5.4.45.37.82.92.82 2.02v3.03c0 .27.1.64.73.55A11 11 0 0012 1.27"
-                ></path>
-              </svg>
-              Github
+              Account
+              <img
+                :src="getArrowColor()"
+                alt="down-arrow"
+                class="arrow ms-2 d-lg-block d-none"
+              />
+              <img
+                :src="getArrowColor()"
+                alt="down-arrow"
+                class="arrow ms-1 d-lg-none d-block ms-auto"
+              />
             </a>
+            <div
+              class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
+              aria-labelledby="dropdownMenuPages"
+            >
+              <div class="row d-none d-lg-block">
+                <div class="col-12 px-4 py-2">
+                  <div class="row">
+                    <div class="position-relative">
+                      <div
+                        class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-1"
+                      >
+                        Account
+                      </div>
+                      <RouterLink
+                        v-if="!cookie"
+                        :to="{ name: 'account-sign-in' }"
+                        class="dropdown-item border-radius-md"
+                      >
+                        <span>Sign In</span>
+                      </RouterLink>
+                      <RouterLink
+                        v-if="!cookie"
+                        :to="{ name: 'account-sign-up' }"
+                        class="dropdown-item border-radius-md"
+                      >
+                        <span>Sign Up</span>
+                      </RouterLink>
+                      <RouterLink
+                        v-if="cookie"
+                        :to="{ name: 'account-my-profile' }"
+                        class="dropdown-item border-radius-md"
+                      >
+                        <span>My Profile</span>
+                      </RouterLink>
+                      <div
+                        @click="userStore.signOut"
+                        v-if="cookie"
+                        class="dropdown-item border-radius-md"
+                      >
+                        <span>Sign Out</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-lg-none">
+                <div
+                  class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0"
+                >
+                  Account
+                </div>
+                <RouterLink
+                  v-if="!cookie"
+                  :to="{ name: 'account-sign-in' }"
+                  class="dropdown-item border-radius-md"
+                >
+                  <span>Sign In</span>
+                </RouterLink>
+                <RouterLink
+                  v-if="!cookie"
+                  :to="{ name: 'account-sign-up' }"
+                  class="dropdown-item border-radius-md"
+                >
+                  <span>Sign Up</span>
+                </RouterLink>
+                <RouterLink
+                  v-if="cookie"
+                  :to="{ name: 'account-my-profile' }"
+                  class="dropdown-item border-radius-md"
+                >
+                  <span>My Profile</span>
+                </RouterLink>
+                <div
+                  @click="userStore.signOut"
+                  v-if="cookie"
+                  class="dropdown-item border-radius-md"
+                >
+                  <span>Sign Out</span>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown dropdown-hover mx-2">
+            <a
+              role="button"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+              :class="getTextColor()"
+              id="dropdownMenuPages"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i
+                class="material-icons opacity-6 me-2 text-md"
+                :class="getTextColor()"
+                >dashboard</i
+              >
+              Community
+              <img
+                :src="getArrowColor()"
+                alt="down-arrow"
+                class="arrow ms-2 d-lg-block d-none"
+              />
+              <img
+                :src="getArrowColor()"
+                alt="down-arrow"
+                class="arrow ms-1 d-lg-none d-block ms-auto"
+              />
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
+              aria-labelledby="dropdownMenuPages"
+            >
+              <div class="row d-none d-lg-block">
+                <div class="col-12 px-4 py-2">
+                  <div class="row">
+                    <div class="position-relative">
+                      <div
+                        class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-1"
+                      >
+                        Community
+                      </div>
+                      <RouterLink
+                        :to="{ path: '/community/board/home/1' }"
+                        class="dropdown-item border-radius-md"
+                      >
+                        <span>Board</span>
+                      </RouterLink>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-lg-none">
+                <div
+                  class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0"
+                >
+                  Community
+                </div>
+                <RouterLink
+                  :to="{ path: '/community/board/home/1' }"
+                  class="dropdown-item border-radius-md"
+                >
+                  <span>Board</span>
+                </RouterLink>
+              </div>
+            </div>
           </li>
         </ul>
         <ul class="navbar-nav d-lg-block d-none">
           <li class="nav-item">
-            <a
-              :href="action.route"
-              class="btn btn-sm mb-0"
-              :class="action.color"
-              onclick="smoothToPricing('pricing-soft-ui')"
-              >{{ action.label }}</a
+            <RouterLink
+              v-if="!cookie || !user_nickname"
+              :to="{ name: 'account-sign-in' }"
+              style="text-transform: none"
+              class="bg-gradient-success btn btn-sm mb-0"
             >
+              Sign In
+            </RouterLink>
+            <RouterLink
+              v-else
+              :to="{ name: 'account-my-profile' }"
+              class="bg-gradient-success btn btn-sm mb-0"
+              style="text-transform: none"
+            >
+              {{ user_nickname }}
+            </RouterLink>
           </li>
         </ul>
       </div>

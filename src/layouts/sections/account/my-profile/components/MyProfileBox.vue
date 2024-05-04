@@ -1,26 +1,68 @@
 <script setup>
-import { ref, onBeforeMount, getCurrentInstance } from "vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
+import { ref, watch } from "vue";
 import {
-  profileUpdateCheck,
   validateImageFile,
-  isSocialSignIn,
   isLocalImg,
-} from "../../utill/validationCheck.js";
+  isSocialSignIn,
+} from "@/utill/validationCheck";
+import { useUserStore } from "@/stores/useUserStore";
 
-const { proxy } = getCurrentInstance();
+const userStore = useUserStore();
 
-const router = useRouter();
-const user_id = ref("");
-const user_password = ref("");
-const user_e_mail = ref("");
-const user_profile_img = ref("");
-const file = ref(null);
-const isLoading = ref(true);
+const user_id = ref(userStore.user_id);
+const user_password = ref(userStore.user_password);
+const user_e_mail = ref(userStore.user_e_mail);
+const user_nickname = ref(userStore.user_nickname);
+const user_profile_img = ref(userStore.user_profile_img);
 const changeProfile = ref(false);
-const profile_img_name = ref("only jpg or png");
 
+const profile_img_name = ref("only jpg or png");
+const user_profile_img_input = ref(null);
+watch(
+  () => userStore.user_id,
+  (newValue) => {
+    user_id.value = newValue;
+  }
+);
+watch(
+  () => userStore.user_password,
+  (newValue) => {
+    user_password.value = newValue;
+  }
+);
+watch(
+  () => userStore.user_e_mail,
+  (newValue) => {
+    user_e_mail.value = newValue;
+  }
+);
+watch(
+  () => userStore.user_nickname,
+  (newValue) => {
+    user_nickname.value = newValue;
+  }
+);
+watch(
+  () => userStore.user_profile_img,
+  (newValue) => {
+    user_profile_img.value = newValue;
+  }
+);
+
+const saveProfile = () => {
+  const payload = {
+    user_id: user_id.value,
+    user_password: user_password.value,
+    user_e_mail: user_e_mail.value,
+    user_nickname: user_nickname.value,
+  };
+
+  userStore.saveUserProfileApi(
+    payload,
+    user_profile_img_input.value,
+    editProfile
+  );
+};
 const editProfile = () => {
   changeProfile.value = !changeProfile.value;
 };
@@ -29,94 +71,10 @@ const insertFileName = (event) => {
     profile_img_name.value = event.target.files[0].name;
   }
 };
-
-const saveProfile = async () => {
-  if (!confirm("修正しますか？")) {
-    return;
-  }
-  if (
-    !profileUpdateCheck(
-      user_id.value,
-      user_password.value,
-      user_e_mail.value,
-      file.value
-    )
-  ) {
-    return;
-  }
-  try {
-    const cookie = proxy.$cookies.get("jwt");
-    const axiosConfig = {
-      headers: {
-        Authorization: `Bearer ${cookie}`,
-      },
-      validateStatus: function (status) {
-        return (
-          (status >= 200 && status < 300) || status === 401 || status === 400
-        );
-      },
-    };
-    const formData = new FormData();
-    formData.append("user_id", user_id.value);
-    formData.append("user_password", user_password.value);
-    formData.append("user_e_mail", user_e_mail.value);
-    formData.append("user_profile_img", file.value.files[0]);
-    const response = await axios.put(
-      `http://127.0.0.1:5000/auth/user`,
-      formData,
-      axiosConfig
-    );
-    if (response.status === 200) {
-      router.go(0);
-    } else if (response.status === 400) {
-      alert("エラーが発生しました。以前のページに戻ります。");
-      router.go(-1);
-    }
-  } catch (error) {
-    alert("会員情報修正に失敗しました。ネットワーク状況を確認してください。");
-    router.go(-1);
-  }
-  changeProfile.value = !changeProfile.value;
-};
-const getUserProfile = async () => {
-  const cookie = proxy.$cookies.get("jwt");
-  const axiosConfig = {
-    headers: {
-      Authorization: `Bearer ${cookie}`,
-    },
-    validateStatus: function (status) {
-      return (status >= 200 && status < 300) || status === 401;
-    },
-  };
-
-  try {
-    const response = await axios.get(
-      `http://127.0.0.1:5000/auth/user`,
-      axiosConfig
-    );
-    if (response.status >= 200 && response.status < 300) {
-      const body = response.data;
-      console.log(body);
-      user_id.value = body.user_id;
-      user_password.value = body.user_password;
-      user_e_mail.value = body.user_e_mail;
-      user_profile_img.value = body.user_profile_img;
-      isLoading.value = false;
-    } else if (response.status === 401) {
-      alert("MyProfileに入るためにはログインする必要があります。");
-      router.push({ path: "/sections/account/sign-in" });
-    }
-  } catch (error) {
-    console.log(error);
-    router.go(-1);
-    alert("会員情報習得に失敗しました。ネットワーク状況を確認してください。");
-  }
-};
-onBeforeMount(getUserProfile);
 </script>
 
 <template>
-  <div v-if="!isLoading" class="my-profile-container">
+  <div class="my-profile-container">
     <div class="my-profile-content">
       <div class="profile-img-content">
         <img
@@ -136,7 +94,7 @@ onBeforeMount(getUserProfile);
             <input
               type="file"
               @change="insertFileName"
-              ref="file"
+              ref="user_profile_img_input"
               name="user-profile-image"
               id="user-profile-image"
               accept=".jpg,.png"
@@ -149,10 +107,23 @@ onBeforeMount(getUserProfile);
           <label for="user_id">Id:</label>
           <input
             class="input-disabled"
-            type="text"
+            type="email"
             name="user_id"
             id="user_id"
             v-model="user_id"
+          />
+        </div>
+        <div class="form-group">
+          <label for="user_id">NickName:</label>
+          <input
+            :class="{
+              'input-disabled': !changeProfile,
+              'input-enabled': changeProfile,
+            }"
+            type="text"
+            name="user_nickname"
+            id="user_nickname"
+            v-model="user_nickname"
           />
         </div>
         <div class="form-group" v-if="!isSocialSignIn(user_id)">
@@ -162,7 +133,7 @@ onBeforeMount(getUserProfile);
               'input-disabled': !changeProfile,
               'input-enabled': changeProfile,
             }"
-            type="text"
+            type="password"
             name="user_password"
             id="user_password"
             v-model="user_password"

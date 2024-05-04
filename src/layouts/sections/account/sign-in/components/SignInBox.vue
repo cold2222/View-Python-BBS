@@ -1,41 +1,54 @@
+<script setup>
+import { ref } from "vue";
+import { useUserStore } from "@/stores/useUserStore";
+
+const user_input_id = ref("");
+const user_input_password = ref("");
+const userStore = useUserStore();
+
+const signIn = () => {
+  userStore.signInApi(user_input_id.value, user_input_password.value);
+};
+</script>
+
 <template>
   <div class="login-form">
     <div class="login-header">
       <h2>Sign In</h2>
     </div>
-    <form>
+    <form @submit.prevent="signIn">
       <div>
         <div class="form-group">
-          <label for="username">Account</label>
+          <label for="user_id">Account</label>
           <input
             type="email"
             id="user_id"
-            v-model="user_id"
+            v-model="user_input_id"
             autocomplete="off"
             required
           />
         </div>
         <div class="form-group">
-          <label for="password">password</label>
+          <label for="user_password">Password</label>
           <input
             type="password"
             id="user_password"
-            v-model="user_password"
+            v-model="user_input_password"
             autocomplete="off"
             required
           />
         </div>
       </div>
-      <button type="button" @click="login">login</button>
+      <button type="submit">Login</button>
     </form>
     <div class="sign-up">
-      <p>if u want create account?</p>
-      <router-link class="sign-up-link" :to="{ name: 'account-sign-up' }"
-        >sign up</router-link
-      >
+      <p>If you want to create an account?</p>
+      <router-link class="sign-up-link" :to="{ name: 'account-sign-up' }">
+        Sign Up
+      </router-link>
     </div>
     <div class="login-options">
-      <p>social login</p>
+      <p>Social Login</p>
       <div>
         <a
           class="login-link"
@@ -53,52 +66,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import axios from "axios";
-import { signInCheck } from "../../utill/validationCheck.js";
-export default {
-  data() {
-    return {
-      user_id: "",
-      user_password: "",
-    };
-  },
-  methods: {
-    async login() {
-      try {
-        if (signInCheck(this.user_id, this.user_password)) {
-          return;
-        }
-        const response = await axios.get(
-          `http://127.0.0.1:5000/user/sign-in/${this.user_id}/${this.user_password}`,
-          {
-            validateStatus: function (status) {
-              return (status >= 200 && status < 300) || status === 400;
-            },
-            withCredentials: true,
-          }
-        );
-        if (response.status === 200) {
-          this.$router.push({ path: "/" });
-        } else if (response.status === 400) {
-          alert(
-            "ログインに失敗しました。アカウント及びパスワードを確認してください。"
-          );
-        }
-      } catch (error) {
-        alert("ログインに失敗しました。ネットワーク状況を確認してください。");
-      }
-    },
-    loginWithGoogle() {
-      console.log("구글 로그인을 시도합니다.");
-    },
-    loginWithKakao() {
-      console.log("카카오톡 로그인을 시도합니다.");
-    },
-  },
-};
-</script>
 
 <style scoped>
 @import "./SignInBox.css";

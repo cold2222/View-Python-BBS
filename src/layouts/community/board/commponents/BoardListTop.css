@@ -39,7 +39,7 @@
 .board-list-top-content-2 .search-box-container {
   display: flex;
   align-items: center;
-  flex-basis: 50%;
+  flex-basis: 60%;
 }
 .board-list-top-content-2 .search-box-container .search-box {
   font-size: 18px;
@@ -69,7 +69,6 @@
   font-size: 16px;
   padding: 5px;
   border-radius: 5px;
-  opacity: 0;
   display: none;
   transition: opacity 0.5s ease;
   width: 100%;

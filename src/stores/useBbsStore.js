@@ -7,6 +7,8 @@ import bbs from "@/layouts/community/board/commponents/data.js";
 export const useBbsStore = defineStore("bbs", () => {
   const route = useRoute();
 
+  const bbs_loading = ref(false);
+
   // BoardBox ref
   const category_list = ref(bbs.menu);
   const current_category = ref(route.params.category);
@@ -30,7 +32,6 @@ export const useBbsStore = defineStore("bbs", () => {
     if (keyword === undefined) {
       keyword = "";
     }
-    console.log(bbs_list.value, bbs_list.value == null, "확인용");
     prev_data.value[category + sort + keyword] = bbs_list.value;
     prev_data.value[category + sort + keyword + "extracted_page_lists"] =
       extracted_page_lists.value;
@@ -38,6 +39,10 @@ export const useBbsStore = defineStore("bbs", () => {
       total_pages.value;
     prev_data.value[category + sort + keyword + "total_posts"] =
       total_posts.value;
+  };
+
+  const resetPrevData = () => {
+    prev_data.value = {};
   };
 
   const loadPrevData = (category, page, sort, keyword) => {
@@ -55,7 +60,6 @@ export const useBbsStore = defineStore("bbs", () => {
       prev_data.value[category + sort + keyword + "extracted_page_lists"] >=
         page
     ) {
-      console.log(prev_data.value[category + sort + keyword]);
       bbs_list.value = prev_data.value[category + sort + keyword];
       extracted_page_lists.value =
         prev_data.value[category + sort + keyword + "extracted_page_lists"];
@@ -96,27 +100,33 @@ export const useBbsStore = defineStore("bbs", () => {
     page_list.value = custom_page_list;
   };
 
-  const bbsListUp = (category, page, sort, starting_point) => {
+  const bbsListUp = (category, page, sort, keyword, starting_point) => {
+    bbs_loading.value = true;
+
     bbsApi
-      .getBbsList(category, page, sort, starting_point)
+      .getBbsList(category, page, sort, keyword, starting_point)
       .then((res) => {
         // console.log("bbsList ok");
         extracted_page_lists.value += res.data.extracted_page_lists;
         bbs_list.value = [...bbs_list.value, ...res.data.bbs_list];
         total_pages.value = res.data.total_pages;
         total_posts.value = res.data.total_posts;
+        bbs_loading.value = false;
       })
       .catch((err) => {
         console.log(err);
       });
   };
   const getBbs = (bbs_pk) => {
+    bbs_loading.value = true;
+
     bbsApi
       .getBbs(bbs_pk)
       .then((res) => {
         console.log("bbs ok");
         console.log(res.data);
         bbs_data.value = res.data;
+        bbs_loading.value = false;
       })
       .catch((err) => {
         console.log(err);
@@ -124,6 +134,7 @@ export const useBbsStore = defineStore("bbs", () => {
   };
 
   return {
+    bbs_loading,
     bbs_list,
     category_list,
     current_category,
@@ -140,6 +151,7 @@ export const useBbsStore = defineStore("bbs", () => {
     bbsStoreReset,
     savePrevData,
     loadPrevData,
+    resetPrevData,
     getBbs,
   };
 });

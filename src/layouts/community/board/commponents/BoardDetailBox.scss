@@ -1,3 +1,7 @@
+.detail-container{
+    min-height: 600px;
+}
+
 .user-profile-img-box {
     border-radius: 50%;
     overflow: hidden;
@@ -31,23 +35,24 @@
     .header-2 {
         display: flex;
         justify-content: space-between;
-
         .header-2-left {
-
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             div {
                 flex-wrap: wrap;
             }
-
-
-
+            
+            
+            
             .header-2-left-top {
                 padding: 0 15px;
                 font-size: 24px;
                 font-weight: bold;
                 color: black;
-
+                
             }
-
+            
             .header-2-left-bottom {
                 display: flex;
                 padding: 0 15px;
@@ -62,6 +67,7 @@
                 }
 
                 .category-div {
+                    cursor: pointer;
                     padding: 0 5px;
                     border-radius: 20%;
                     background-color: gray;

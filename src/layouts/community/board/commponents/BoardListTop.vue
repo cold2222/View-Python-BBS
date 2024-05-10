@@ -2,7 +2,7 @@
 import { storeToRefs } from "pinia";
 import { useBbsStore } from "@/stores/useBbsStore";
 import { onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
@@ -47,9 +47,12 @@ const getSearchLink = () => {
 
 const getSortLink = (sort) => {
   const hasKeywordQuery = route.query.keyword ? route.query.keyword : "";
+
+  // eslint-disable-next-line no-unused-vars
+  const { sort: sortFromQuery, ...restQuery } = route.query;
   let query = {};
   if (hasKeywordQuery) {
-    query = { sort: sort, ...route.query };
+    query = { sort: sort, ...restQuery };
   } else {
     query = { sort: sort };
   }
@@ -64,6 +67,14 @@ const searchFromSubmit = (e) => {
   const link = getSearchLink();
   router.push({ path: link.path, query: link.query });
 };
+
+// eslint-disable-next-line no-unused-vars
+onBeforeRouteUpdate(async (to, from) => {
+  search_input_text.value = to.query.keyword ? to.query.keyword : "";
+  if (to.query.keyword == undefined) {
+    search_input_active.value = false;
+  }
+});
 
 onMounted(() => {
   insertCategoryInstruction();

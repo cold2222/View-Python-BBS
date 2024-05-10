@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted } from "vue";
-import { useRoute, onBeforeRouteUpdate } from "vue-router";
+import { useRoute, onBeforeRouteUpdate, onBeforeRouteLeave } from "vue-router";
 import MaterialPagination from "@/components/MaterialPagination.vue";
 import MaterialPaginationItem from "@/components/MaterialPaginationItem.vue";
 import { useBbsStore } from "@/stores/useBbsStore";
 import { storeToRefs } from "pinia";
-import MaterialButton from "@/components/MaterialButton.vue";
 import BoardListBox from "./BoardListBox.vue";
 import BoardDetailBox from "./BoardDetailBox.vue";
+import BoardBoxRightMenu from "./BoardBoxRightMenu.vue";
 
 const bbsStore = useBbsStore();
 const route = useRoute();
@@ -28,7 +28,15 @@ const {
   bbsStoreReset,
   savePrevData,
   loadPrevData,
+  resetPrevData,
 } = bbsStore;
+
+const ScrollMoveTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
 
 const isMenuActive = (item) => {
   return route.params.category === item;
@@ -54,12 +62,12 @@ const getLink = (page) => {
   }
   return { path: route.path, query };
 };
-onBeforeRouteUpdate(async (to, from) => {
-  // 디테일 페이지 이동시 정지
-  if (to.params.category === "detail") {
-    console.log("디테일페이지 이동");
-  }
+onBeforeRouteLeave(async () => {
+  // 게시판 나갈시 과거데이터 초기화
+  resetPrevData();
+});
 
+onBeforeRouteUpdate(async (to, from) => {
   // 페이지이동
   if (
     to.params.category === from.params.category &&
@@ -73,27 +81,34 @@ onBeforeRouteUpdate(async (to, from) => {
     handlePageList();
     window.scrollTo(0, 0);
 
-    if (extracted_page_lists >= to.query.page) {
+    if (extracted_page_lists.value >= to.query.page) {
       return;
     }
   }
 
   // 다른카테고리,상세페이지 이동시 과거 데이터 저장
   if (
-    to.params.category !== from.params.category ||
-    to.query.sort !== from.query.sort ||
-    to.query.keyword !== from.query.keyword
+    (to.params.category !== from.params.category ||
+      to.query.sort !== from.query.sort ||
+      to.query.keyword !== from.query.keyword) &&
+    from.params.category !== "detail"
   ) {
     console.log("과거데이터 저장");
     savePrevData(from.params.category, from.query.sort, from.query.keyword);
     bbsStoreReset();
   }
 
+  // 디테일 페이지 이동시 리스트 로드 스탑
+  if (to.params.category === "detail") {
+    console.log("디테일페이지 이동");
+    return;
+  }
+
   // 과거 데이터 업로드
   if (
     loadPrevData(
       to.params.category,
-      to.query.page,
+      to.query.page ? to.query.page : 1,
       to.query.sort,
       to.query.keyword
     ) &&
@@ -112,24 +127,32 @@ onBeforeRouteUpdate(async (to, from) => {
       to.params.category,
       to.query.page ? to.query.page : 1,
       to.query.sort ? to.query.sort : "new",
+      to.query.keyword ? to.query.keyword : "",
       "midway"
     );
     current_category.value = to.params.category;
     handleCurrentPage(to.query.page);
     handlePageList();
     sort_option.value = to.query.sort ? to.query.sort : "new";
-    window.scrollTo(0, 0);
+    ScrollMoveTop();
   }
   console.log("--------------------");
 });
 
 onMounted(() => {
+  resetPrevData();
   if (route.params.category != "detail") {
     console.log("onMount실행");
     handleCurrentPage(route.query.page);
     handlePageList();
     let page = Math.floor((route.query.page - 1) / 5) * 5 + 1;
-    bbsListUp(route.params.category, page, route.query.sort, "scratch");
+    bbsListUp(
+      route.params.category,
+      page,
+      route.query.sort ? route.query.sort : "new",
+      route.query.keyword ? route.query.keyword : "",
+      "scratch"
+    );
   }
 });
 </script>
@@ -154,26 +177,7 @@ onMounted(() => {
       </div>
       <BoardListBox v-if="route.params.category != 'detail'"></BoardListBox>
       <BoardDetailBox v-else></BoardDetailBox>
-      <div class="col-2">
-        <div>
-          <MaterialButton
-            size="sm"
-            class="btn-icon mx-2"
-            color="success"
-            fullWidth
-          >
-            <div class="flex align-items-center">
-              Write a post
-              <img
-                class="write-icon"
-                src="@/assets/icon/edit_24dp_FILL0_wght400_GRAD0_opsz24.png"
-              />
-            </div>
-          </MaterialButton>
-        </div>
-        <div>공지사항</div>
-        <div>인기글</div>
-      </div>
+      <BoardBoxRightMenu></BoardBoxRightMenu>
     </div>
     <div
       class="row mt-3 py-4 justify-content-center"
@@ -203,6 +207,7 @@ onMounted(() => {
         </MaterialPagination>
       </div>
     </div>
+    <div>&nbsp;</div>
   </div>
 </template>
 

@@ -1,27 +1,60 @@
 <script setup>
 import { onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
 import { useBbsStore } from "@/stores/useBbsStore";
 import { storeToRefs } from "pinia";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 const bbsStore = useBbsStore();
 const route = useRoute();
-
-const { bbs_data } = storeToRefs(bbsStore);
+const router = useRouter();
+const { bbs_data, bbs_loading } = storeToRefs(bbsStore);
 
 const { getBbs } = bbsStore;
 
+const ScrollMoveTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
+const moveBack = () => {
+  router.go(-1);
+};
+
+const moveCategory = (category) => {
+  router.push("/community/board/" + category);
+};
+
+const convertText = (text) => {
+  if (typeof text === "string") {
+    return text.replace(/(?:\r\n|\r|\n)/g, "<br />");
+  }
+};
+
+// eslint-disable-next-line no-unused-vars
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.categry == "detail") {
+    console.log("디테일페이지 update");
+    ScrollMoveTop();
+    getBbs(to.query.number);
+    console.log("-------------");
+  }
+});
+
 onMounted(() => {
   console.log("디테일페이지 온마운트");
+  ScrollMoveTop();
   getBbs(route.query.number);
 });
 </script>
 
 <template>
-  <div class="col-8 bg-light border-radius-lg bg-white">
+  <LoadingSpinner v-if="bbs_loading"></LoadingSpinner>
+  <div class="col-8 bg-light border-radius-lg bg-white detail-container">
     <div class="detail-header">
       <div class="header-1">
-        <div class="back-btn">← Go back</div>
+        <div class="back-btn" @click="moveBack()">← Go back</div>
       </div>
       <div class="header-2">
         <div class="header-2-left">
@@ -30,10 +63,18 @@ onMounted(() => {
           </div>
           <div class="header-2-left-bottom">
             <div>
-              by <span class="id-span">{{ bbs_data.bbs_user_id }}</span>
+              by
+              <span v-if="bbs_data.user != undefined" class="id-span">{{
+                bbs_data.user.user_nickname
+              }}</span>
             </div>
             <span class="distinguish-span">•</span>
-            <div class="category-div">#{{ bbs_data.bbs_category }}</div>
+            <div
+              class="category-div"
+              @click="moveCategory(bbs_data.bbs_category)"
+            >
+              #{{ bbs_data.bbs_category }}
+            </div>
             <span class="distinguish-span">•</span>
             <div class="date-div">{{ bbs_data.bbs_date }}</div>
             <span class="distinguish-span">•</span>
@@ -73,7 +114,10 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div class="detail-content">{{ bbs_data.bbs_content }}</div>
+    <div
+      class="detail-content"
+      v-html="convertText(bbs_data.bbs_content)"
+    ></div>
   </div>
 </template>
 

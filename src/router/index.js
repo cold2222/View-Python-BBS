@@ -29,7 +29,7 @@ import MyProfileView from "../layouts/sections/account/my-profile/MyProfileView.
 import KakaoLogin from "../layouts/sections/account/social-login/KakaoLogin.vue";
 import GoogleLogin from "../layouts/sections/account/social-login/GoogleLogin.vue";
 import BoardListView from "../layouts/community/board/BoardListView.vue";
-import BoardDetailView from "../layouts/community/board/BoardDetailView.vue";
+import BoardWriteView from "../layouts/community/board/write/BoardWriteView.vue";
 
 import VueCookies from "vue-cookies";
 
@@ -187,11 +187,11 @@ const router = createRouter({
       name: "community-board",
       component: BoardListView,
     },
-    // {
-    //   path: "/community/detail/:bbs_pk",
-    //   name: "community-detail",
-    //   component: BoardDetailView,
-    // },
+    {
+      path: "/community/board/write",
+      name: "community-board-write",
+      component: BoardWriteView,
+    },
   ],
 });
 // path접속시 user_jwt가 없을시 로그인페이지로 이동시킴

@@ -20,7 +20,7 @@ defineProps({
         </div>
       </div>
     </div>
+    <slot />
   </div>
-  <slot />
   <CenteredFooter />
 </template>

@@ -18,9 +18,9 @@ defineProps({
         <div class="mb-4 w-100 w-md-50 w-lg-25">
           <Breadcrumbs :routes="breadcrumb" />
         </div>
-        <slot />
       </div>
     </div>
   </div>
+  <slot />
   <CenteredFooter />
 </template>

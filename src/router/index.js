@@ -183,15 +183,15 @@ const router = createRouter({
       component: GoogleLogin,
     },
     {
-      path: "/community/board/:category/:current_page",
+      path: "/community/board/:category",
       name: "community-board",
       component: BoardListView,
     },
-    {
-      path: "/community/detail/:bbs_pk",
-      name: "community-detail",
-      component: BoardDetailView,
-    },
+    // {
+    //   path: "/community/detail/:bbs_pk",
+    //   name: "community-detail",
+    //   component: BoardDetailView,
+    // },
   ],
 });
 // path접속시 user_jwt가 없을시 로그인페이지로 이동시킴

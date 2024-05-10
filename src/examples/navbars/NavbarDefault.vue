@@ -1040,7 +1040,7 @@ watch(
                         Community
                       </div>
                       <RouterLink
-                        :to="{ path: '/community/board/home/1' }"
+                        :to="{ path: '/community/board/home' }"
                         class="dropdown-item border-radius-md"
                       >
                         <span>Board</span>
@@ -1056,7 +1056,7 @@ watch(
                   Community
                 </div>
                 <RouterLink
-                  :to="{ path: '/community/board/home/1' }"
+                  :to="{ path: '/community/board/home' }"
                   class="dropdown-item border-radius-md"
                 >
                   <span>Board</span>

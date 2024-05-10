@@ -7,62 +7,139 @@ import bbs from "@/layouts/community/board/commponents/data.js";
 export const useBbsStore = defineStore("bbs", () => {
   const route = useRoute();
 
+  // BoardBox ref
   const category_list = ref(bbs.menu);
   const current_category = ref(route.params.category);
-  const current_page = ref(route.params.current_page);
-  const bbs_all_list = ref([]);
+  const current_page = ref(route.query.page ? parseInt(route.query.page) : 1);
   const bbs_list = ref([]);
+  const total_posts = ref(0);
+  const total_pages = ref(0);
+  const sort_option = ref(route.query.sort ? route.query.sort : "new");
+  const extracted_page_lists = ref(0);
+  const page_list = ref([]);
+  const prev_data = ref({});
+  const search_keyword = ref(route.query.keyword ? route.query.keyword : "");
 
-  const page_size = 6;
-  const start_num = ref((current_page.value - 1) * page_size);
-  const end_num = ref(current_page.value * page_size);
+  //BoardDetail ref
+  const bbs_data = ref([]);
 
-  const pageList = () => {
-    const page_btn_num = 5;
-    const start_page_array_num = Math.floor(current_page.value / page_btn_num);
-    const page_num_list = [];
-
-    for (let i = 1; i < 6; i++) {
-      page_num_list.push(start_page_array_num * 5 + i);
+  const savePrevData = (category, sort, keyword) => {
+    if (sort === undefined) {
+      sort = "new";
     }
-    return page_num_list;
+    if (keyword === undefined) {
+      keyword = "";
+    }
+    console.log(bbs_list.value, bbs_list.value == null, "확인용");
+    prev_data.value[category + sort + keyword] = bbs_list.value;
+    prev_data.value[category + sort + keyword + "extracted_page_lists"] =
+      extracted_page_lists.value;
+    prev_data.value[category + sort + keyword + "total_pages"] =
+      total_pages.value;
+    prev_data.value[category + sort + keyword + "total_posts"] =
+      total_posts.value;
   };
-  const page_list = ref(pageList());
 
-  const bbsListUp = (category) => {
+  const loadPrevData = (category, page, sort, keyword) => {
+    if (sort === undefined) {
+      sort = "new";
+    }
+    if (keyword === undefined) {
+      keyword = "";
+    }
+    sort_option.value = sort;
+    search_keyword.value = keyword;
+
+    if (
+      prev_data.value[category + sort + keyword] !== undefined &&
+      prev_data.value[category + sort + keyword + "extracted_page_lists"] >=
+        page
+    ) {
+      console.log(prev_data.value[category + sort + keyword]);
+      bbs_list.value = prev_data.value[category + sort + keyword];
+      extracted_page_lists.value =
+        prev_data.value[category + sort + keyword + "extracted_page_lists"];
+      total_pages.value =
+        prev_data.value[category + sort + keyword + "total_pages"];
+      total_posts.value =
+        prev_data.value[category + sort + keyword + "total_posts"];
+      return true;
+    }
+    return false;
+  };
+
+  const bbsStoreReset = () => {
+    total_posts.value = 0;
+    current_category.value = route.params.category;
+    current_page.value = route.query.page ? parseInt(route.query.page) : 1;
+    bbs_list.value = [];
+    total_pages.value = 0;
+    sort_option.value = "new";
+    extracted_page_lists.value = 0;
+    page_list.value = [];
+  };
+
+  const handleCurrentPage = (movePage) => {
+    if (movePage === undefined) {
+      current_page.value = 1;
+    } else {
+      current_page.value = movePage;
+    }
+  };
+
+  const handlePageList = () => {
+    let page = Math.floor((current_page.value - 1) / 5) * 5 + 1;
+    let custom_page_list = [];
+    for (let i = page; i < page + 5; i++) {
+      custom_page_list.push(i);
+    }
+    page_list.value = custom_page_list;
+  };
+
+  const bbsListUp = (category, page, sort, starting_point) => {
     bbsApi
-      .getBbsList(category)
+      .getBbsList(category, page, sort, starting_point)
       .then((res) => {
-        console.log(res.data.bbs_list);
-        bbs_all_list.value = res.data.bbs_list;
-        getpagePosts();
+        // console.log("bbsList ok");
+        extracted_page_lists.value += res.data.extracted_page_lists;
+        bbs_list.value = [...bbs_list.value, ...res.data.bbs_list];
+        total_pages.value = res.data.total_pages;
+        total_posts.value = res.data.total_posts;
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  const getpagePosts = () => {
-    const bbs = [];
-    start_num.value = (current_page.value - 1) * page_size;
-    end_num.value = current_page.value * page_size;
-    for (let i = start_num.value; i < end_num.value; i++) {
-      if (i >= 0 && i < bbs_all_list.value.length) {
-        bbs.push(bbs_all_list.value[i]);
-      }
-    }
-    bbs_list.value = bbs;
-    console.log(bbs_list, "페이지리스트");
+  const getBbs = (bbs_pk) => {
+    bbsApi
+      .getBbs(bbs_pk)
+      .then((res) => {
+        console.log("bbs ok");
+        console.log(res.data);
+        bbs_data.value = res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  bbsListUp(current_category.value);
   return {
-    bbs_all_list,
     bbs_list,
     category_list,
     current_category,
     current_page,
     page_list,
+    total_pages,
+    sort_option,
+    extracted_page_lists,
+    total_posts,
+    bbs_data,
     bbsListUp,
-    getpagePosts,
+    handleCurrentPage,
+    handlePageList,
+    bbsStoreReset,
+    savePrevData,
+    loadPrevData,
+    getBbs,
   };
 });

@@ -4,7 +4,7 @@ import { onMounted } from "vue";
 import BaseLayout from "@/layouts/community/commponents/BaseLayout.vue";
 
 // boardbox components
-import BoardListBox from "./commponents/BoardListBox.vue";
+import BoardListBox from "./commponents/BoardBox.vue";
 
 //nav-pills
 import setNavPills from "@/assets/js/nav-pills";
@@ -20,10 +20,7 @@ onMounted(() => {
 
 <template>
   <BaseLayout
-    :breadcrumb="[
-      { label: 'Community', route: route.params.category },
-      { label: route.params.category },
-    ]"
+    :breadcrumb="[{ label: 'Community' }, { label: route.params.category }]"
   >
     <BoardListBox></BoardListBox>
   </BaseLayout>
